@@ -1,0 +1,6 @@
+#!/bin/bash
+
+browserify \
+  -t babelify \
+  index.js \
+  -o diagram.js
