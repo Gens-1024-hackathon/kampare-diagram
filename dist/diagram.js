@@ -1,25 +1,39 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
+(function (app) {
+
+  var Diagram = require('./lib/diagram');
+  app.Diagram = Diagram;
+})(window._model || (window._model = {}));
+
+},{"./lib/diagram":3}],2:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _ = require('underscore');
-var Book = _model.Book;
-var EventGroup = _model.EventGroup;
 
 var Axis = (function () {
   function Axis() {
     _classCallCheck(this, Axis);
 
-    this.timeSet = {};
-    this.offsetX = 0;
-    this.offsetY = 0;
-    this.heightUnit = 50;
+    this.initialize();
   }
 
   _createClass(Axis, [{
+    key: 'initialize',
+    value: function initialize() {
+      this.timeSet = {};
+      this.offsetX = 0;
+      this.offsetY = 0;
+      this.heightUnit = 50;
+    }
+  }, {
     key: 'updatePosition',
     value: function updatePosition(timeSet) {
       this.position = Object.keys(timeSet).sort(function (a, b) {
@@ -83,89 +97,76 @@ var Axis = (function () {
   return Axis;
 })();
 
-var ViewEventGroup = (function () {
-  function ViewEventGroup(data) {
-    _classCallCheck(this, ViewEventGroup);
+exports['default'] = Axis;
+module.exports = exports['default'];
 
-    Object.assign(this, data);
-    this.sortAnchor(this.anchor);
-    this.offsetX = 50;
-    this.offsetY = 9;
-    this.widthUnit = 100;
-    this.heightUnit = 50;
-  }
+},{}],3:[function(require,module,exports){
+'use strict';
 
-  _createClass(ViewEventGroup, [{
-    key: 'sortAnchor',
-    value: function sortAnchor(anchor) {
-      return anchor.sort(function (a, b) {
-        return a.value - b.value;
-      });
-    }
-  }, {
-    key: 'getStartPosition',
-    value: function getStartPosition(axis) {
-      return axis.getPosition(this.anchor[0].value);
-    }
-  }, {
-    key: 'getEndPosition',
-    value: function getEndPosition(axis) {
-      return axis.getPosition(this.anchor[this.anchor.length - 1].value);
-    }
-  }, {
-    key: 'renderTo',
-    value: function renderTo(axis, column, bookIndex) {
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
 
-      var width = this.widthUnit;
-      var height = this.heightUnit * (this.getEndPosition(axis) - this.getStartPosition(axis));
-      var left = this.offsetX + column * this.widthUnit;
-      var top = this.offsetY + this.getStartPosition(axis) * this.heightUnit;
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-      return '\n      <div class="book-' + bookIndex.indexOf(this.bookId) + '" style="\n        position: absolute;\n        left: ' + left + 'px;\n        top: ' + top + 'px;\n        height: ' + height + 'px;\n        width: ' + width + 'px;\n        padding: 2px;\n      ">\n        <div style="\n          background-color: #eee;\n          width: 100%;\n          height: 100%;\n        ">' + this.description + '</div>\n      </div>\n    ';
-    }
-  }]);
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-  return ViewEventGroup;
-})();
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _axis = require('./axis');
+
+var _axis2 = _interopRequireDefault(_axis);
+
+var _viewEventGroup = require('./view-event-group');
+
+var _viewEventGroup2 = _interopRequireDefault(_viewEventGroup);
+
+var _ = require('underscore');
 
 var Diagram = (function () {
-  function Diagram() {
+  function Diagram(model) {
     _classCallCheck(this, Diagram);
 
-    this.axis = new Axis();
-    this.viewEventGroupSet = {};
+    this.model = model;
+    this.initialize();
   }
 
   _createClass(Diagram, [{
+    key: 'initialize',
+    value: function initialize() {
+      this.axis = new _axis2['default']();
+      this.viewEventGroupSet = {};
+    }
+  }, {
     key: 'addEventGroups',
     value: function addEventGroups(eventGroups) {
-      var _this2 = this;
+      var _this = this;
 
       var axis = this.axis;
       axis.load(eventGroups);
       eventGroups.forEach(function (eventGroup) {
-        var viewEventGroup = new ViewEventGroup(eventGroup);
-        _this2.viewEventGroupSet[eventGroup._id] = viewEventGroup;
+        var viewEventGroup = new _viewEventGroup2['default'](eventGroup);
+        _this.viewEventGroupSet[eventGroup._id] = viewEventGroup;
       });
     }
   }, {
     key: 'removeEventGroups',
     value: function removeEventGroups(eventGroups) {
-      var _this3 = this;
+      var _this2 = this;
 
       var axis = this.axis;
       axis.unload(eventGroups);
       eventGroups.forEach(function (eventGroup) {
-        delete _this3.viewEventGroupSet[eventGroup._id];
+        delete _this2.viewEventGroupSet[eventGroup._id];
       });
     }
   }, {
     key: 'sortEventGroupsByDuration',
     value: function sortEventGroupsByDuration(eventGroups) {
-      var _this4 = this;
+      var _this3 = this;
 
       return eventGroups.sort(function (a, b) {
-        var axis = _this4.axis;
+        var axis = _this3.axis;
         var durationA = a.getEndPosition(axis) - a.getStartPosition(axis);
         var durationB = b.getEndPosition(axis) - b.getStartPosition(axis);
         return durationB - durationA;
@@ -188,7 +189,7 @@ var Diagram = (function () {
   }, {
     key: 'bookedColumns',
     value: function bookedColumns(eventGroups) {
-      var _this5 = this;
+      var _this4 = this;
 
       var bookedEventGroups = eventGroups.reduce(function (memo, eventGroup) {
         memo[eventGroup.bookId] = memo[eventGroup.bookId] || [];
@@ -197,19 +198,19 @@ var Diagram = (function () {
       }, {});
 
       return _.reduce(bookedEventGroups, function (memo, currentBookEventGroups, bookId) {
-        memo[bookId] = _this5.columns(currentBookEventGroups);
+        memo[bookId] = _this4.columns(currentBookEventGroups);
         return memo;
       }, {});
     }
   }, {
     key: 'split',
     value: function split(eventGroups) {
-      var _this6 = this;
+      var _this5 = this;
 
       return eventGroups.reduce(function (memo, currentEventGroup) {
         if (_.find(memo.column, function (savedEventGroup) {
           // console.log('finding:', arguments);
-          return _this6.overlaps(savedEventGroup, currentEventGroup);
+          return _this5.overlaps(savedEventGroup, currentEventGroup);
         })) {
           memo.remain.push(currentEventGroup);
           return memo;
@@ -238,29 +239,31 @@ var Diagram = (function () {
   }, {
     key: 'open',
     value: function open(bookId) {
-      var _this7 = this;
+      var _this6 = this;
 
+      var Book = this.model.Book;
       return Book.findById(bookId).then(function (book) {
         return book.getEventGroups();
       }).then(function (eventGroups) {
-        return _this7.addEventGroups(eventGroups);
+        return _this6.addEventGroups(eventGroups);
       });
     }
   }, {
     key: 'close',
     value: function close(bookId) {
-      var _this8 = this;
+      var _this7 = this;
 
+      var Book = this.model.Book;
       return Book.findById(bookId).then(function (book) {
         return book.getEventGroups();
       }).then(function (eventGroups) {
-        return _this8.removeEventGroups(eventGroups);
+        return _this7.removeEventGroups(eventGroups);
       });
     }
   }, {
     key: 'render',
     value: function render(booked) {
-      var _this9 = this;
+      var _this8 = this;
 
       var bookIndex = Object.keys(_.reduce(this.viewEventGroupSet, function (memo, eventGroup) {
         memo[eventGroup.bookId] = true;
@@ -273,13 +276,13 @@ var Diagram = (function () {
       if (booked) {
         events = _.flatten(_.toArray(this.bookedColumns(prepare)), true).map(function (eventGroups, column) {
           return eventGroups.map(function (eventGroup) {
-            return eventGroup.renderTo(_this9.axis, column, bookIndex);
+            return eventGroup.renderTo(_this8.axis, column, bookIndex);
           }).join('');
         }).join('');
       } else {
         events = this.columns(prepare).map(function (eventGroups, column) {
           return eventGroups.map(function (eventGroup) {
-            return eventGroup.renderTo(_this9.axis, column, bookIndex);
+            return eventGroup.renderTo(_this8.axis, column, bookIndex);
           }).join('');
         }).join('');
       }
@@ -291,9 +294,74 @@ var Diagram = (function () {
   return Diagram;
 })();
 
-_model.Diagram = Diagram;
+exports['default'] = Diagram;
+module.exports = exports['default'];
 
-},{"underscore":2}],2:[function(require,module,exports){
+},{"./axis":2,"./view-event-group":4,"underscore":5}],4:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var ViewEventGroup = (function () {
+  function ViewEventGroup(data) {
+    _classCallCheck(this, ViewEventGroup);
+
+    this.initialize(data);
+  }
+
+  _createClass(ViewEventGroup, [{
+    key: "initialize",
+    value: function initialize(data) {
+      Object.assign(this, data);
+      this.sortAnchor(this.anchor);
+      this.offsetX = 50;
+      this.offsetY = 9;
+      this.widthUnit = 100;
+      this.heightUnit = 50;
+    }
+  }, {
+    key: "sortAnchor",
+    value: function sortAnchor(anchor) {
+      return anchor.sort(function (a, b) {
+        return a.value - b.value;
+      });
+    }
+  }, {
+    key: "getStartPosition",
+    value: function getStartPosition(axis) {
+      return axis.getPosition(this.anchor[0].value);
+    }
+  }, {
+    key: "getEndPosition",
+    value: function getEndPosition(axis) {
+      return axis.getPosition(this.anchor[this.anchor.length - 1].value);
+    }
+  }, {
+    key: "renderTo",
+    value: function renderTo(axis, column, bookIndex) {
+
+      var width = this.widthUnit;
+      var height = this.heightUnit * (this.getEndPosition(axis) - this.getStartPosition(axis));
+      var left = this.offsetX + column * this.widthUnit;
+      var top = this.offsetY + this.getStartPosition(axis) * this.heightUnit;
+
+      return "\n      <div class=\"book-" + bookIndex.indexOf(this.bookId) + "\" style=\"\n        position: absolute;\n        left: " + left + "px;\n        top: " + top + "px;\n        height: " + height + "px;\n        width: " + width + "px;\n        padding: 2px;\n      \">\n        <div style=\"\n          background-color: #eee;\n          width: 100%;\n          height: 100%;\n        \">" + this.description + "</div>\n      </div>\n    ";
+    }
+  }]);
+
+  return ViewEventGroup;
+})();
+
+exports["default"] = ViewEventGroup;
+module.exports = exports["default"];
+
+},{}],5:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
