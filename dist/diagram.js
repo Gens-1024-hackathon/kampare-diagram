@@ -7,7 +7,7 @@
   app.Diagram = Diagram;
 })(window._model || (window._model = {}));
 
-},{"./lib/diagram":3}],2:[function(require,module,exports){
+},{"./lib/diagram":4}],2:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -17,6 +17,11 @@ Object.defineProperty(exports, '__esModule', {
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _constant = require('./constant');
+
+var OFFSET_X = 0;
+var OFFSET_Y = 0;
 
 var Axis = (function () {
   function Axis() {
@@ -29,9 +34,6 @@ var Axis = (function () {
     key: 'initialize',
     value: function initialize() {
       this.timeSet = {};
-      this.offsetX = 0;
-      this.offsetY = 0;
-      this.heightUnit = 50;
     }
   }, {
     key: 'updatePosition',
@@ -85,10 +87,8 @@ var Axis = (function () {
   }, {
     key: 'render',
     value: function render() {
-      var _this = this;
-
       return this.position.map(function (p, index) {
-        var top = index * _this.heightUnit + _this.offsetY;
+        var top = index * _constant.UNIT_HEIGHT + OFFSET_Y;
         return '<div style="\n        position: absolute;\n        top: ' + top + 'px;\n      ">' + p + '</div>';
       }).join('\n');
     }
@@ -100,7 +100,18 @@ var Axis = (function () {
 exports['default'] = Axis;
 module.exports = exports['default'];
 
-},{}],3:[function(require,module,exports){
+},{"./constant":3}],3:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var UNIT_WIDTH = 200;
+exports.UNIT_WIDTH = UNIT_WIDTH;
+var UNIT_HEIGHT = 100;
+exports.UNIT_HEIGHT = UNIT_HEIGHT;
+
+},{}],4:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -297,16 +308,21 @@ var Diagram = (function () {
 exports['default'] = Diagram;
 module.exports = exports['default'];
 
-},{"./axis":2,"./view-event-group":4,"underscore":5}],4:[function(require,module,exports){
-"use strict";
+},{"./axis":2,"./view-event-group":5,"underscore":6}],5:[function(require,module,exports){
+'use strict';
 
-Object.defineProperty(exports, "__esModule", {
+Object.defineProperty(exports, '__esModule', {
   value: true
 });
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _constant = require('./constant');
+
+var OFFSET_X = 50;
+var OFFSET_Y = 9;
 
 var ViewEventGroup = (function () {
   function ViewEventGroup(data) {
@@ -316,52 +332,48 @@ var ViewEventGroup = (function () {
   }
 
   _createClass(ViewEventGroup, [{
-    key: "initialize",
+    key: 'initialize',
     value: function initialize(data) {
       Object.assign(this, data);
       this.sortAnchor(this.anchor);
-      this.offsetX = 50;
-      this.offsetY = 9;
-      this.widthUnit = 100;
-      this.heightUnit = 50;
     }
   }, {
-    key: "sortAnchor",
+    key: 'sortAnchor',
     value: function sortAnchor(anchor) {
       return anchor.sort(function (a, b) {
         return a.value - b.value;
       });
     }
   }, {
-    key: "getStartPosition",
+    key: 'getStartPosition',
     value: function getStartPosition(axis) {
       return axis.getPosition(this.anchor[0].value);
     }
   }, {
-    key: "getEndPosition",
+    key: 'getEndPosition',
     value: function getEndPosition(axis) {
       return axis.getPosition(this.anchor[this.anchor.length - 1].value);
     }
   }, {
-    key: "renderTo",
+    key: 'renderTo',
     value: function renderTo(axis, column, bookIndex) {
 
-      var width = this.widthUnit;
-      var height = this.heightUnit * (this.getEndPosition(axis) - this.getStartPosition(axis));
-      var left = this.offsetX + column * this.widthUnit;
-      var top = this.offsetY + this.getStartPosition(axis) * this.heightUnit;
+      var width = _constant.UNIT_WIDTH;
+      var height = _constant.UNIT_HEIGHT * (this.getEndPosition(axis) - this.getStartPosition(axis));
+      var left = OFFSET_X + column * _constant.UNIT_WIDTH;
+      var top = OFFSET_Y + this.getStartPosition(axis) * _constant.UNIT_HEIGHT;
 
-      return "\n      <div class=\"book-" + bookIndex.indexOf(this.bookId) + "\" style=\"\n        position: absolute;\n        left: " + left + "px;\n        top: " + top + "px;\n        height: " + height + "px;\n        width: " + width + "px;\n        padding: 2px;\n      \">\n        <div style=\"\n          background-color: #eee;\n          width: 100%;\n          height: 100%;\n        \">" + this.description + "</div>\n      </div>\n    ";
+      return '\n      <div class="book-' + bookIndex.indexOf(this.bookId) + '" style="\n        position: absolute;\n        left: ' + left + 'px;\n        top: ' + top + 'px;\n        height: ' + height + 'px;\n        width: ' + width + 'px;\n        padding: 2px;\n      ">\n        <div style="\n          background-color: #eee;\n          width: 100%;\n          height: 100%;\n        ">' + this.description + '</div>\n      </div>\n    ';
     }
   }]);
 
   return ViewEventGroup;
 })();
 
-exports["default"] = ViewEventGroup;
-module.exports = exports["default"];
+exports['default'] = ViewEventGroup;
+module.exports = exports['default'];
 
-},{}],5:[function(require,module,exports){
+},{"./constant":3}],6:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
